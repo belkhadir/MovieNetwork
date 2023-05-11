@@ -8,7 +8,7 @@
 import Foundation
 
 public protocol RequestManaging {
-    func perform<T: Decodable>(request: Requestable) async throws -> T
+    func perform<T: Decodable>(request: Requestable, bearTokenize: BearTokenize) async throws -> T
 }
 
 final public class RequestManager {
@@ -25,8 +25,8 @@ final public class RequestManager {
 
 // MARK: - RequestManaging
 extension RequestManager: RequestManaging {
-    public func perform<T>(request: Requestable) async throws -> T where T : Decodable {
-        let data = try await service.perform(request: request)
+    public func perform<T>(request: Requestable, bearTokenize: BearTokenize) async throws -> T where T : Decodable {
+        let data = try await service.perform(request: request, bearTokenize: bearTokenize)
         return try parser.parse(data: data)
     }
 }

@@ -8,7 +8,7 @@
 import Foundation
 
 public protocol NetworkServiceProviding {
-    func perform(request: Requestable) async throws -> Data
+    func perform(request: Requestable, bearTokenize: BearTokenize) async throws -> Data
 }
 
 final class NetworkServiceProvider {
@@ -21,8 +21,8 @@ final class NetworkServiceProvider {
 
 // MARK: - NetworkServiceProviding
 extension NetworkServiceProvider: NetworkServiceProviding {
-    func perform(request: Requestable) async throws -> Data {
-        let request = try request.createURLRequest()
+    func perform(request: Requestable, bearTokenize: BearTokenize) async throws -> Data {
+        let request = try request.createURLRequest(bearerTokonize: bearTokenize)
         let (data, response) = try await session.data(for: request)
         guard let httpResponse = response as? HTTPURLResponse,
               httpResponse.isOK else {

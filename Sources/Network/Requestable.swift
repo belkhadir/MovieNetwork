@@ -10,9 +10,8 @@ import Foundation
 public protocol Requestable {
     var path: String { get }
     var headers: [String: String] { get }
-    var params: [String: Any] { get }
-    var urlParams: [String: String?] { get }
-    var bearToken: String { get }
+    var httpBody: [String: Any] { get }
+    var urlParameters: [String: String?] { get }
     var requestType: RequestType { get }
 }
 
@@ -22,11 +21,11 @@ extension Requestable {
         "api.themoviedb.org"
     }
     
-    var params: [String: Any] {
+    var httpBody: [String: Any] {
         [:]
     }
     
-    var urlParams: [String: String?] {
+    var urlParameters: [String: String?] {
         [:]
     }
     
@@ -36,14 +35,14 @@ extension Requestable {
 }
 
 extension Requestable {
-    func createURLRequest() throws -> URLRequest {
+    func createURLRequest(bearerTokonize: BearTokenize) throws -> URLRequest {
         var components = URLComponents()
         components.scheme = "https"
         components.host = host
         components.path = "/4" + path
         
-        if !urlParams.isEmpty {
-            components.queryItems = urlParams.map {
+        if !urlParameters.isEmpty {
+            components.queryItems = urlParameters.map {
                 URLQueryItem(name: $0, value: $1)
             }
         }
@@ -59,9 +58,10 @@ extension Requestable {
             urlRequest.allHTTPHeaderFields = headers
         }
 
-        urlRequest.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        if !params.isEmpty {
-            urlRequest.httpBody = try JSONSerialization.data(withJSONObject: params)
+        urlRequest.setValue("application/json", forHTTPHeaderField: "accept")
+        urlRequest.setValue(bearerTokonize.bearer, forHTTPHeaderField: "Authorization")
+        if !httpBody.isEmpty {
+            urlRequest.httpBody = try JSONSerialization.data(withJSONObject: httpBody)
         }
         return urlRequest
     }
